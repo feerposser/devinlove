@@ -77,23 +77,23 @@ WSGI_APPLICATION = 'devinlove.wsgi.application'
 
 print("DEBUG:", DEBUG)
 # if not DEBUG:
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv("MYSQL_DATABASE", "db"),
+#         "USER": os.getenv("MYSQL_USER", "db"),
+#         "PASSWORD": os.getenv("MYSQL_PASSWORD", "db"),
+#         "HOST": os.getenv("DATABASE_HOST", "localhost"),
+#         "PORT": os.getenv("DATABASE_PORT", "3306")
+#     }
+# }
+# else:
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("MYSQL_DATABASE", "db"),
-        "USER": os.getenv("MYSQL_USER", "db"),
-        "PASSWORD": os.getenv("MYSQL_PASSWORD", "db"),
-        "HOST": os.getenv("DATABASE_HOST", "localhost"),
-        "PORT": os.getenv("DATABASE_PORT", "3306")
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#         }
-#     }
 
 
 # Password validation

@@ -2,20 +2,18 @@ version: '3.8'
 
 services:
 
-    mysql:
-        image: mysql:8.0
-        restart: always
-        container_name: mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=admin
-            - MYSQL_DATABASE=database
-            - MYSQL_USER=admin
-            - MYSQL_PASSWORD=admin
-        volumes:
-            - .mysqldata:/var/lib/mysql
-        command: --default-authentication-plugin=mysql_native_password
-        networks:
-          - default
+    # mysql:
+    #     image: mysql:8.0
+    #     restart: always
+    #     container_name: mysql
+    #     environment:
+    #         - MYSQL_ROOT_PASSWORD=admin
+    #         - MYSQL_DATABASE=database
+    #         - MYSQL_USER=admin
+    #         - MYSQL_PASSWORD=admin
+    #     volumes:
+    #         - .mysqldata:/var/lib/mysql
+    #     command: --default-authentication-plugin=mysql_native_password
 
     devinlove:
         build:
@@ -27,43 +25,32 @@ services:
         env_file:
             - ./environment/dev.django.env
             - ./environment/dev.db.env
-        # expose:
-        #     - "8000"
-        ports:
-            - 8000:8000
+        expose:
+            - "8000"
         volumes:
             - static:/app/static_files
             - ./templates:/app/templates
-        depends_on:
-            - mysql
-        links:
-            - mysql
+        # depends_on:
+        #     - mysql
+        # links:
+        #     - mysql
         command: python manage.py runserver 0.0.0.0:8000
-        networks:
-          - default
 
-    # nginx:
-    #     build: 
-    #         context: ./nginx/
-    #         dockerfile: Dockerfile
-    #     image: nginx
-    #     restart: always
-    #     container_name: nginx
-    #     ports:
-    #         - 80:80
-    #     volumes:
-    #         - static:/app/static_files
-    #     depends_on:
-    #         - devinlove
-    #     links:
-    #         - devinlove
-    #     networks:
-    #       - default
+    nginx:
+        build: 
+            context: ./nginx/
+            dockerfile: Dockerfile
+        image: nginx
+        restart: always
+        container_name: nginx
+        ports:
+            - 80:80
+        volumes:
+            - static:/app/static_files
+        depends_on:
+            - devinlove
+        links:
+            - devinlove
 
 volumes:
     static:
-
-networks:
-    default:
-        name: devinlove-network
-        driver: bridge
