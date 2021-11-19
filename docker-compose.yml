@@ -2,19 +2,6 @@ version: '3.8'
 
 services:
 
-    # mysql:
-    #     image: mysql:8.0
-    #     restart: always
-    #     container_name: mysql
-    #     environment:
-    #         - MYSQL_ROOT_PASSWORD=admin
-    #         - MYSQL_DATABASE=database
-    #         - MYSQL_USER=admin
-    #         - MYSQL_PASSWORD=admin
-    #     volumes:
-    #         - .mysqldata:/var/lib/mysql
-    #     command: --default-authentication-plugin=mysql_native_password
-
     devinlove:
         build:
             context: .
@@ -30,27 +17,45 @@ services:
         volumes:
             - static:/app/static_files
             - ./templates:/app/templates
-        # depends_on:
-        #     - mysql
-        # links:
-        #     - mysql
         command: python manage.py runserver 0.0.0.0:8000
+        depends_on:
+            - app
 
-    nginx:
-        build: 
-            context: ./nginx/
-            dockerfile: Dockerfile
-        image: nginx
-        restart: always
-        container_name: nginx
+    app:
+        image: 'jc21/nginx-proxy-manager:latest'
+        restart: unless-stopped
         ports:
-            - 80:80
+            # These ports are in format <host-port>:<container-port>
+            - '80:80' # Public HTTP Port
+            - '443:443' # Public HTTPS Port
+            - '81:81' # Admin Web Port
+            # Add any other Stream port you want to expose
+            # - '21:21' # FTP
+        environment:
+            DB_MYSQL_HOST: "db"
+            DB_MYSQL_PORT: 3306
+            DB_MYSQL_USER: "npm"
+            DB_MYSQL_PASSWORD: "npm"
+            DB_MYSQL_NAME: "npm"
+            # Uncomment this if IPv6 is not enabled on your host
+            # DISABLE_IPV6: 'true'
         volumes:
+            - ./data:/data
+            - ./letsencrypt:/etc/letsencrypt
             - static:/app/static_files
         depends_on:
-            - devinlove
-        links:
-            - devinlove
+            - db
+
+    db:
+        image: 'jc21/mariadb-aria:latest'
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: 'npm'
+            MYSQL_DATABASE: 'npm'
+            MYSQL_USER: 'npm'
+            MYSQL_PASSWORD: 'npm'
+        volumes:
+            - ./data/mysql:/var/lib/mysql
 
 volumes:
     static:
